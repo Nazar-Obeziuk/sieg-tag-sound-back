@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import * as DB from "./config/db.js";
+import bodyParser from "body-parser";
 
 // routes
 import BlogRouter from "./routers/BlogRouter.js";
@@ -13,8 +13,9 @@ const PORT = 5555;
 
 app.use(express.json());
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("Welcome to API");
 });
 
@@ -37,3 +38,5 @@ app.listen(PORT, (error) => {
 
   console.log(`Server is running on port: ${PORT}`);
 });
+
+
