@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import * as DB from "./config/db.js";
+import bodyParser from "body-parser";
+import * as DB from "./config/db.js"; // connect to DB do not delete
 
 // routes
 import BlogRouter from "./routers/BlogRouter.js";
@@ -13,8 +14,9 @@ const PORT = 5555;
 
 app.use(express.json());
 app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("Welcome to API");
 });
 

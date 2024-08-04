@@ -1,4 +1,42 @@
+import { v4 as uuidv4 } from "uuid";
+import path from "path";
+import os from "os";
+import fs from "fs";
+
 import BlogModel from "../models/Blog.js";
+import bucket from "../config/firebaseConfig.js";
+
+async function uploadImageToFirebase(file) {
+  const uniqueFilename = `${uuidv4()}-${file.originalname}`;
+  const tempFilePath = path.join(os.tmpdir(), file.originalname);
+  fs.writeFileSync(tempFilePath, file.buffer);
+
+  await bucket.upload(tempFilePath, {
+    destination: `music/${uniqueFilename}`,
+    metadata: {
+      contentType: file.mimetype,
+    },
+  });
+
+  fs.unlinkSync(tempFilePath);
+
+  const fileRef = bucket.file(`music/${uniqueFilename}`);
+  const [url] = await fileRef.getSignedUrl({
+    action: "read",
+    expires: "03-01-2500",
+  });
+
+  return url;
+}
+
+// async function uploadSliderImages(files) {
+//   const urls = [];
+//   for (const file of files) {
+//     const url = await uploadImageToFirebase(file);
+//     urls.push(url);
+//   }
+//   return urls;
+// }
 
 export const getAll = async (req, res) => {
   try {
@@ -43,14 +81,19 @@ export const getOne = async (req, res) => {
 
 export const create = async (req, res) => {
   try {
-    const { image_url, descriptions, blog_language, title, text } = req.body;
+    const { descriptions, blog_language, title, text } = req.body;
+    // const image_url = await uploadImageToFirebase(req.files.image_url[0]);
+    // let parseDescriptions = await JSON.parse(descriptions);
+
     const doc = new BlogModel({
-      image_url,
-      descriptions,
+      image_url: "slkfm",
+      descriptions: ["klm", "klm"],
       blog_language,
       title,
       text,
     });
+
+    console.log(doc);
 
     const blog = await doc.save();
 
@@ -66,8 +109,7 @@ export const create = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const blogId = req.params.id;
-    const { image_url, descriptions, blog_language, title, text } = req.body;
-
+    const { descriptions, blog_language, title, text } = req.body;
     await BlogModel.updateOne(
       {
         _id: blogId,
