@@ -43,9 +43,9 @@ export const getOne = async (req, res) => {
 
 export const create = async (req, res) => {
   try {
-    const { imageUrl, descriptions, blog_language, title, text } = req.body;
+    const { image_url, descriptions, blog_language, title, text } = req.body;
     const doc = new BlogModel({
-      imageUrl,
+      image_url,
       descriptions,
       blog_language,
       title,
@@ -66,14 +66,14 @@ export const create = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const blogId = req.params.id;
-    const { imageUrl, descriptions, blog_language, title, text } = req.body;
+    const { image_url, descriptions, blog_language, title, text } = req.body;
 
     await BlogModel.updateOne(
       {
         _id: blogId,
       },
       {
-        imageUrl,
+        image_url,
         descriptions,
         blog_language,
         title,
