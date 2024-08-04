@@ -4,6 +4,7 @@ import bucket from "../config/firebaseConfig.js";
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import os from "os";
+import { URL } from "url";
 import fs from "fs";
 
 async function uploadImageToFirebase(file) {
@@ -12,7 +13,7 @@ async function uploadImageToFirebase(file) {
   fs.writeFileSync(tempFilePath, file.buffer);
 
   await bucket.upload(tempFilePath, {
-    destination: `music/${uniqueFilename}`,
+    destination: `blog/${uniqueFilename}`,
     metadata: {
       contentType: file.mimetype,
     },
@@ -20,13 +21,27 @@ async function uploadImageToFirebase(file) {
 
   fs.unlinkSync(tempFilePath);
 
-  const fileRef = bucket.file(`music/${uniqueFilename}`);
+  const fileRef = bucket.file(`blog/${uniqueFilename}`);
   const [url] = await fileRef.getSignedUrl({
     action: 'read',
     expires: '03-01-2500',
   });
 
   return url;
+}
+
+
+async function deleteImageFromFirebase(imageUrl) {
+  try {
+    const url = new URL(imageUrl);
+    const filePath = decodeURIComponent(url.pathname.split('/').pop());
+
+    const file = bucket.file(`music/${filePath}`);
+    await file.delete();
+    console.log(`File ${filePath} deleted successfully.`);
+  } catch (error) {
+    console.error('Error deleting file:', error);
+  }
 }
 
 
@@ -84,12 +99,12 @@ export const getOne = async (req, res) => {
 export const create = async (req, res) => {
   try {
     const { descriptions, blog_language, title, text } = req.body;
-    // const imageUrl = await uploadImageToFirebase(req.files.image_url[0]);
+    const imageUrl = await uploadImageToFirebase(req.files.image_url[0]);
     let parseDescriptions = await JSON.parse(descriptions);
 
     const doc = new BlogModel({
-      image_url: "sssd",
-      descriptions: ["asd", 'asdasd'],
+      image_url: imageUrl,
+      descriptions: parseDescriptions,
       blog_language,
       title,
       text,
@@ -110,18 +125,39 @@ export const update = async (req, res) => {
   try {
     const blogId = req.params.id;
     const { descriptions, blog_language, title, text } = req.body;
-    await BlogModel.updateOne(
-      {
-        _id: blogId,
-      },
-      {
-        imageUrl,
-        descriptions,
-        blog_language,
-        title,
-        text,
-      }
-    );
+    let parseDescriptions = await JSON.parse(descriptions);
+
+
+    if (req.files && req.files.image_url) {
+      const imageUrl = await uploadImageToFirebase(req.files.image_url[0]);
+      const lastObj = await BlogModel.findById(blogId);
+      await deleteImageFromFirebase(lastObj.image_url);
+
+      await BlogModel.updateOne(
+        {
+          _id: blogId,
+        },
+        {
+          image_url: imageUrl,
+          descriptions: parseDescriptions,
+          blog_language,
+          title,
+          text,
+        }
+      );
+    } else {
+      await BlogModel.updateOne(
+        {
+          _id: blogId,
+        },
+        {
+          descriptions: parseDescriptions,
+          blog_language,
+          title,
+          text,
+        }
+      );
+    }
 
     res.json({
       message: "Блог успішно оновленно",
@@ -138,9 +174,14 @@ export const remove = async (req, res) => {
   try {
     const blogId = req.params.id;
 
+
+    const lastObj = await BlogModel.findById(blogId);
+    await deleteImageFromFirebase(lastObj.image_url);
+
     const doc = await BlogModel.findByIdAndDelete({
       _id: blogId,
     }).exec();
+
 
     if (!doc) {
       return res.status(404).json({

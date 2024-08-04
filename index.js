@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
+import * as DB from "./config/db.js"; // connect to DB do not delete
 
 // routes
 import BlogRouter from "./routers/BlogRouter.js";
