@@ -43,14 +43,17 @@ export const getOne = async (req, res) => {
 
 export const create = async (req, res) => {
   try {
-    const { promocode } = req.body;
+    const { promocode, discount } = req.body;
     const doc = new PromocodeModel({
       promocode,
+      discount,
     });
 
     const promocodeDoc = await doc.save();
 
-    res.json(promocodeDoc);
+    res.status(201).json({
+      message: "Промокод успішно створено",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -62,7 +65,7 @@ export const create = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const promocodeId = req.params.id;
-    const { promocode } = req.body;
+    const { promocode, discount } = req.body;
 
     await PromocodeModel.updateOne(
       {
@@ -70,6 +73,7 @@ export const update = async (req, res) => {
       },
       {
         promocode,
+        discount,
       }
     );
 

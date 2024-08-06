@@ -19,7 +19,14 @@ router.post(
   BlogController.create
 );
 
-router.patch("/:id", checkAuth, handleValidationErrors, BlogController.update);
+router.patch(
+  "/:id",
+  upload.fields([
+    { name: 'image_url', maxCount: 1 },
+  ]),
+  checkAuth,
+  BlogController.update);
+
 router.delete("/:id", checkAuth, handleValidationErrors, BlogController.remove);
 
 export default router;

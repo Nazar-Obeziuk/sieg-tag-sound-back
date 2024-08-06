@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import os from "os";
+import { URL } from "url";
 import fs from "fs";
 
 import BlogModel from "../models/Blog.js";
@@ -12,7 +13,7 @@ async function uploadImageToFirebase(file) {
   fs.writeFileSync(tempFilePath, file.buffer);
 
   await bucket.upload(tempFilePath, {
-    destination: `music/${uniqueFilename}`,
+    destination: `blog/${uniqueFilename}`,
     metadata: {
       contentType: file.mimetype,
     },
@@ -20,7 +21,7 @@ async function uploadImageToFirebase(file) {
 
   fs.unlinkSync(tempFilePath);
 
-  const fileRef = bucket.file(`music/${uniqueFilename}`);
+  const fileRef = bucket.file(`blog/${uniqueFilename}`);
   const [url] = await fileRef.getSignedUrl({
     action: "read",
     expires: "03-01-2500",
@@ -29,14 +30,17 @@ async function uploadImageToFirebase(file) {
   return url;
 }
 
-// async function uploadSliderImages(files) {
-//   const urls = [];
-//   for (const file of files) {
-//     const url = await uploadImageToFirebase(file);
-//     urls.push(url);
-//   }
-//   return urls;
-// }
+async function deleteImageFromFirebase(imageUrl) {
+  try {
+    const url = new URL(imageUrl);
+    const filePath = decodeURIComponent(url.pathname.split("/").pop());
+
+    const file = bucket.file(`blog/${filePath}`);
+    await file.delete();
+  } catch (error) {
+    console.error("Error deleting file:", error);
+  }
+}
 
 export const getAll = async (req, res) => {
   try {
@@ -82,12 +86,12 @@ export const getOne = async (req, res) => {
 export const create = async (req, res) => {
   try {
     const { descriptions, blog_language, title, text } = req.body;
-    // const image_url = await uploadImageToFirebase(req.files.image_url[0]);
-    // let parseDescriptions = await JSON.parse(descriptions);
+    const imageUrl = await uploadImageToFirebase(req.files.image_url[0]);
+    let parseDescriptions = await JSON.parse(descriptions);
 
     const doc = new BlogModel({
-      image_url: "slkfm",
-      descriptions: ["klm", "klm"],
+      image_url: imageUrl,
+      descriptions: parseDescriptions,
       blog_language,
       title,
       text,
@@ -97,7 +101,9 @@ export const create = async (req, res) => {
 
     const blog = await doc.save();
 
-    res.json(blog);
+    res.status(201).json({
+      message: "Блог успішно створено",
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({
@@ -110,18 +116,38 @@ export const update = async (req, res) => {
   try {
     const blogId = req.params.id;
     const { descriptions, blog_language, title, text } = req.body;
-    await BlogModel.updateOne(
-      {
-        _id: blogId,
-      },
-      {
-        image_url,
-        descriptions,
-        blog_language,
-        title,
-        text,
-      }
-    );
+    let parseDescriptions = await JSON.parse(descriptions);
+
+    if (req.files && req.files.image_url) {
+      const imageUrl = await uploadImageToFirebase(req.files.image_url[0]);
+      const lastObj = await BlogModel.findById(blogId);
+      await deleteImageFromFirebase(lastObj.image_url);
+
+      await BlogModel.updateOne(
+        {
+          _id: blogId,
+        },
+        {
+          image_url: imageUrl,
+          descriptions: parseDescriptions,
+          blog_language,
+          title,
+          text,
+        }
+      );
+    } else {
+      await BlogModel.updateOne(
+        {
+          _id: blogId,
+        },
+        {
+          descriptions: parseDescriptions,
+          blog_language,
+          title,
+          text,
+        }
+      );
+    }
 
     res.json({
       message: "Блог успішно оновленно",
@@ -137,6 +163,9 @@ export const update = async (req, res) => {
 export const remove = async (req, res) => {
   try {
     const blogId = req.params.id;
+
+    const lastObj = await BlogModel.findById(blogId);
+    await deleteImageFromFirebase(lastObj.image_url);
 
     const doc = await BlogModel.findByIdAndDelete({
       _id: blogId,

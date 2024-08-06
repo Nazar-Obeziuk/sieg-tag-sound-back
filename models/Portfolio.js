@@ -13,22 +13,18 @@ const PortfolioSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      unique: true,
     },
     category: {
       type: String,
       required: true,
-      unique: true,
     },
     title: {
       type: String,
       required: true,
-      unique: true,
     },
     text: {
       type: String,
       required: true,
-      unique: true,
     },
   },
   {
