@@ -38,7 +38,7 @@ async function deleteImageFromFirebase(imageUrl) {
 
     const file = bucket.file(`music/${filePath}`);
     await file.delete();
-    console.log(`File ${filePath} deleted successfully.`);
+
   } catch (error) {
     console.error('Error deleting file:', error);
   }

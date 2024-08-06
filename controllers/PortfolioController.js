@@ -39,7 +39,7 @@ async function deleteFileFromFirebase(imageUrl) {
 
     const file = bucket.file(`portfolio/${filePath}`);
     await file.delete();
-    console.log(`File ${filePath} deleted successfully.`);
+    (`File ${filePath} deleted successfully.`);
   } catch (error) {
     console.error('Error deleting file:', error);
   }
@@ -90,6 +90,7 @@ export const getOne = async (req, res) => {
 export const create = async (req, res) => {
   try {
     const { name, category, title, text } = req.body;
+
 
     const track_before = await uploadFileToFirebase(req.files.track_before[0]);
     const track_after = await uploadFileToFirebase(req.files.track_after[0]);
