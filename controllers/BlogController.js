@@ -97,8 +97,6 @@ export const create = async (req, res) => {
       text,
     });
 
-    console.log(doc);
-
     const blog = await doc.save();
 
     res.status(201).json({

@@ -10,7 +10,6 @@ const PromocodeSchema = new mongoose.Schema(
     discount: {
       type: Number,
       required: true,
-      unique: true,
     },
   },
   {
