@@ -10,7 +10,7 @@ const upload = multer();
 const router = express.Router();
 
 router.get("/", BlogController.getAll);
-router.get("/:lang", BlogController.getAll);
+router.get("/lang/:lang", BlogController.getAllLang);
 router.get("/:id", BlogController.getOne);
 
 router.post(

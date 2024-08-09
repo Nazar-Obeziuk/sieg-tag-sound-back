@@ -55,6 +55,21 @@ export const getAll = async (req, res) => {
   }
 };
 
+export const getAllLang = async (req, res) => {
+  const lang = req.params.lang;
+
+  try {
+    const blogs = await BlogModel.find({ blog_language: lang }).exec();
+
+    res.json(blogs);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Помилка при завантаженні блогів",
+    });
+  }
+};
+
 export const getOne = async (req, res) => {
   try {
     const blogId = req.params.id;
