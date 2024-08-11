@@ -12,6 +12,7 @@ const router = express.Router();
 router.get("/", BlogController.getAll);
 router.get("/lang/:lang", BlogController.getAllLang);
 router.get("/:id", BlogController.getOne);
+router.get("/:langID/:lang", BlogController.getOneLang);
 
 router.post(
   "/",
@@ -20,6 +21,15 @@ router.post(
   authenticateToken,
   BlogController.create
 );
+
+router.post(
+  "/:langID",
+  upload.fields([{ name: "image_url", maxCount: 1 }]),
+  blogCreateValidation,
+  authenticateToken,
+  BlogController.createLang
+);
+
 
 router.patch(
   "/:id",

@@ -22,6 +22,10 @@ const BlogSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    langID: {
+      type: String,
+      required: false,
+    },
   },
   {
     timestamps: true,
