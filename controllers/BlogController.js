@@ -98,6 +98,38 @@ export const getOne = async (req, res) => {
   }
 };
 
+
+export const getOneLang = async (req, res) => {
+  try {
+    const langID = req.params.id;
+    const blogLang = req.params.lang;
+
+    const doc = await BlogModel.findByIdAndUpdate(
+      {
+        _id: langID,
+        blog_language: blogLang
+      },
+      {
+        returnDocument: "after",
+      }
+    ).exec();
+
+    if (!doc) {
+      return res.status(404).json({
+        message: "Блог не знайдено",
+      });
+    }
+
+    res.json(doc);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Помилка при завантаженні блогу",
+    });
+  }
+};
+
+
 export const create = async (req, res) => {
   try {
     const { descriptions, blog_language, title, text } = req.body;
@@ -110,6 +142,38 @@ export const create = async (req, res) => {
       blog_language,
       title,
       text,
+      blog_language: uuidv4()
+    });
+
+    const blog = await doc.save();
+
+    res.status(201).json({
+      message: "Блог успішно створено",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Помилка при створенні блогу",
+    });
+  }
+};
+
+
+export const createLang = async (req, res) => {
+  try {
+    const blogLang = req.params.langID;
+
+    const { descriptions, blog_language, title, text } = req.body;
+    const imageUrl = await uploadImageToFirebase(req.files.image_url[0]);
+    let parseDescriptions = await JSON.parse(descriptions);
+
+    const doc = new BlogModel({
+      image_url: imageUrl,
+      descriptions: parseDescriptions,
+      blog_language,
+      title,
+      text,
+      blog_language: blogLang
     });
 
     const blog = await doc.save();
