@@ -1,32 +1,40 @@
 import mongoose from "mongoose";
 
-const PortfolioSchema = new mongoose.Schema(
+const PriceSchema = new mongoose.Schema(
   {
-    track_before: {
+    track_mixmas: {
       type: String,
       required: true,
     },
-    track_after: {
+    track_mix: {
       type: String,
       required: true,
     },
-    portfolio_language: {
+    track_mas: {
       type: String,
       required: true,
     },
-    name: {
+    ep_mixmas: {
       type: String,
       required: true,
     },
-    category: {
+    ep_mix: {
       type: String,
       required: true,
     },
-    title: {
+    ep_mas: {
       type: String,
       required: true,
     },
-    text: {
+    album_mixmas: {
+      type: String,
+      required: true,
+    },
+    album_mix: {
+      type: String,
+      required: true,
+    },
+    album_mas: {
       type: String,
       required: true,
     },
@@ -36,4 +44,4 @@ const PortfolioSchema = new mongoose.Schema(
   }
 );
 
-export default mongoose.model("Portfolio", PortfolioSchema);
+export default mongoose.model("Price", PriceSchema);

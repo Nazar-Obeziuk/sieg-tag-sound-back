@@ -56,6 +56,23 @@ export const getAll = async (req, res) => {
   }
 };
 
+export const getAllLang = async (req, res) => {
+  const lang = req.params.lang;
+
+  try {
+    const portfolios = await PortfolioModel.find({
+      portfolio_language: lang,
+    }).exec();
+
+    res.json(portfolios);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Помилка при завантаженні портфоліо",
+    });
+  }
+};
+
 export const getOne = async (req, res) => {
   try {
     const portfolioId = req.params.id;
@@ -86,7 +103,7 @@ export const getOne = async (req, res) => {
 
 export const create = async (req, res) => {
   try {
-    const { name, category, title, text } = req.body;
+    const { portfolio_language, name, category, title, text } = req.body;
 
     const track_before = await uploadFileToFirebase(req.files.track_before[0]);
     const track_after = await uploadFileToFirebase(req.files.track_after[0]);
@@ -94,6 +111,7 @@ export const create = async (req, res) => {
     const doc = new PortfolioModel({
       track_before,
       track_after,
+      portfolio_language,
       name,
       category,
       title,
@@ -116,7 +134,7 @@ export const create = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const portfolioId = req.params.id;
-    const { name, category, title, text } = req.body;
+    const { portfolio_language, name, category, title, text } = req.body;
 
     if (req.files && req.files.track_before && req.files.track_after) {
       const track_before = await uploadFileToFirebase(
@@ -136,6 +154,7 @@ export const update = async (req, res) => {
         {
           track_before,
           track_after,
+          portfolio_language,
           name,
           category,
           title,
