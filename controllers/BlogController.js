@@ -98,16 +98,15 @@ export const getOne = async (req, res) => {
   }
 };
 
-
 export const getOneLang = async (req, res) => {
   try {
-    const langID = req.params.id;
+    const langID = req.params.langID;
     const blogLang = req.params.lang;
 
-    const doc = await BlogModel.findByIdAndUpdate(
+    const doc = await BlogModel.findOneAndUpdate(
       {
-        _id: langID,
-        blog_language: blogLang
+        langID: langID,
+        blog_language: blogLang,
       },
       {
         returnDocument: "after",
@@ -129,7 +128,6 @@ export const getOneLang = async (req, res) => {
   }
 };
 
-
 export const create = async (req, res) => {
   try {
     const { descriptions, blog_language, title, text } = req.body;
@@ -142,7 +140,7 @@ export const create = async (req, res) => {
       blog_language,
       title,
       text,
-      blog_language: uuidv4()
+      langID: uuidv4(),
     });
 
     const blog = await doc.save();
@@ -158,7 +156,6 @@ export const create = async (req, res) => {
   }
 };
 
-
 export const createLang = async (req, res) => {
   try {
     const blogLang = req.params.langID;
@@ -173,7 +170,7 @@ export const createLang = async (req, res) => {
       blog_language,
       title,
       text,
-      blog_language: blogLang
+      langID: blogLang,
     });
 
     const blog = await doc.save();

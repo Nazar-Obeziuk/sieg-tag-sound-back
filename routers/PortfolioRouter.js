@@ -13,6 +13,7 @@ const router = express.Router();
 router.get("/", PortfolioController.getAll);
 router.get("/lang/:lang", PortfolioController.getAllLang);
 router.get("/:id", PortfolioController.getOne);
+router.get("/:langID/:lang", PortfolioController.getOneLang);
 
 router.post(
   "/",
@@ -23,6 +24,17 @@ router.post(
   portfolioCreateValidation,
   authenticateToken,
   PortfolioController.create
+);
+
+router.post(
+  "/:langID",
+  upload.fields([
+    { name: "track_before", maxCount: 1 },
+    { name: "track_after", maxCount: 1 },
+  ]),
+  portfolioCreateValidation,
+  authenticateToken,
+  PortfolioController.createLang
 );
 
 router.patch(

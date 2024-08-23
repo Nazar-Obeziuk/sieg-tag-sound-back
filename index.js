@@ -8,6 +8,7 @@ import BlogRouter from "./routers/BlogRouter.js";
 import PortfolioRouter from "./routers/PortfolioRouter.js";
 import PromocodeRouter from "./routers/PromocodeRouter.js";
 import PricesRouter from "./routers/PriceRouter.js";
+import FullPricesRouter from "./routers/FullPricesRouter.js";
 import AuthRouter from "./routers/AuthRouter.js";
 
 const app = express();
@@ -35,6 +36,9 @@ app.use("/promocodes", PromocodeRouter);
 
 // prices
 app.use("/prices", PricesRouter);
+
+// full prices
+app.use("/full-prices", FullPricesRouter);
 
 app.listen(PORT, (error) => {
   if (error) {

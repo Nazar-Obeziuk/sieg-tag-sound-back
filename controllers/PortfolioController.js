@@ -88,7 +88,37 @@ export const getOne = async (req, res) => {
 
     if (!doc) {
       return res.status(404).json({
-        message: "Блог не знайдено",
+        message: "Портфоліо не знайдено",
+      });
+    }
+
+    res.json(doc);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Помилка при завантаженні портфоліо",
+    });
+  }
+};
+
+export const getOneLang = async (req, res) => {
+  try {
+    const langID = req.params.langID;
+    const portfolioLang = req.params.lang;
+
+    const doc = await PortfolioModel.findOneAndUpdate(
+      {
+        langID: langID,
+        portfolio_language: portfolioLang,
+      },
+      {
+        returnDocument: "after",
+      }
+    ).exec();
+
+    if (!doc) {
+      return res.status(404).json({
+        message: "Портфоліо не знайдено",
       });
     }
 
@@ -116,6 +146,39 @@ export const create = async (req, res) => {
       category,
       title,
       text,
+      langID: uuidv4(),
+    });
+
+    const portfolio = await doc.save();
+
+    res.status(201).json({
+      message: "Портфоліо успішно створено",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: "Помилка при створенні портфоліо",
+    });
+  }
+};
+
+export const createLang = async (req, res) => {
+  try {
+    const portfolioLang = req.params.langID;
+
+    const { portfolio_language, name, category, title, text } = req.body;
+    const track_before = await uploadFileToFirebase(req.files.track_before[0]);
+    const track_after = await uploadFileToFirebase(req.files.track_after[0]);
+
+    const doc = new PortfolioModel({
+      track_before,
+      track_after,
+      portfolio_language,
+      name,
+      category,
+      title,
+      text,
+      langID: portfolioLang,
     });
 
     const portfolio = await doc.save();

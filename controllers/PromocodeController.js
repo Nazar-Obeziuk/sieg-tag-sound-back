@@ -43,10 +43,11 @@ export const getOne = async (req, res) => {
 
 export const create = async (req, res) => {
   try {
-    const { promocode, discount } = req.body;
+    const { promocode, discount, category } = req.body;
     const doc = new PromocodeModel({
       promocode,
       discount,
+      category,
     });
 
     const promocodeDoc = await doc.save();
@@ -65,7 +66,7 @@ export const create = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const promocodeId = req.params.id;
-    const { promocode, discount } = req.body;
+    const { promocode, discount, category } = req.body;
 
     await PromocodeModel.updateOne(
       {
@@ -74,6 +75,7 @@ export const update = async (req, res) => {
       {
         promocode,
         discount,
+        category,
       }
     );
 
