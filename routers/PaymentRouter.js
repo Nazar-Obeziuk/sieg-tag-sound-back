@@ -1,6 +1,7 @@
 import express from "express";
 import crypto from "crypto";
 import { sendMessage } from "../utils/telegramService.js";
+import { log } from "console";
 
 const router = express.Router();
 
@@ -82,6 +83,8 @@ router.post("/service-url", async (req, res) => {
     transactionStatus,
     reasonCode,
   ];
+
+  console.log("body", req.body);
 
   const receivedSignature = req.body.merchantSignature;
   const calculatedSignature = generateSignature(signatureParams, secretKey);
