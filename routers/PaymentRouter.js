@@ -1,7 +1,6 @@
 import express from "express";
 import crypto from "crypto";
-import { sendMessage } from "../utils/telegramService";
-import { log } from "console";
+import { sendMessage } from "../utils/telegramService.js";
 
 const router = express.Router();
 
