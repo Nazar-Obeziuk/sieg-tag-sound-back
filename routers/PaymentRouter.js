@@ -120,14 +120,10 @@ router.post("/service-url", async (req, res) => {
   ) {
     console.log(`Оплата пройшла успішно! Номер замовлення: ${orderReference}`);
 
-    const productName = req.body.productName;
+    // const productName = req.body.productName;
     const clientName = req.body.clientName || "";
 
-    await sendMessage(
-      `Оплата пройшла успішно! Продукт: ${productName.join(
-        ", "
-      )}. Оплачено клієнтом: ${clientName}.`
-    );
+    await sendMessage(`Оплата пройшла успішно! Клієнт: ${clientName}.`);
 
     res.json({
       orderReference: orderReference,
