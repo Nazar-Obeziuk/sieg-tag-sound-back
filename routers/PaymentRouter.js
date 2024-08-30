@@ -203,7 +203,7 @@ router.post("/initiate-payment", (req, res) => {
     productName: productName,
     productCount: productCount,
     productPrice: productPrice,
-    serviceUrl: "http://185.233.117.23:5555/service-url", // Додаємо serviceUrl
+    serviceUrl: "http://185.233.117.23:5555/payment/service-url", // Додаємо serviceUrl
   };
 
   res.json({
