@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Купівля товару</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        input,
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Оформлення замовлення</h1>
+    <form id="purchaseForm">
+        <label for="productName">Назва товару:</label>
+        <input type="text" id="productName" value="Ноутбук ASUS" readonly><br>
+
+        <label for="productPrice">Ціна:</label>
+        <input type="text" id="productPrice" value="1" readonly><br>
+
+        <label for="productCount">Кількість:</label>
+        <input type="number" id="productCount" value="1" min="1"><br>
+
+        <label for="clientName">Ваше ім'я:</label>
+        <input type="text" id="clientName" placeholder="Введіть ваше ім'я" required><br>
+
+        <label for="clientEmail">Ваш Email:</label>
+        <input type="email" id="clientEmail" placeholder="Введіть ваш Email" required><br>
+
+        <label for="clientPhone">Ваш телефон:</label>
+        <input type="tel" id="clientPhone" placeholder="Введіть ваш телефон" required><br>
+
+        <button type="submit">Оплатити</button>
+    </form>
+
+    <script>
+        document.getElementById('purchaseForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const orderReference = 'ORD-' + Date.now(); // Унікальний номер замовлення
+            const orderDate = Math.floor(Date.now() / 1000); // Поточний Unix час
+
+            const paymentData = {
+                merchantAccount: '185_233_117_23', // Ваш Merchant login
+                merchantDomainName: '185.233.117.23:3000', // Ваш домен
+                orderReference: orderReference,
+                orderDate: orderDate,
+                amount: document.getElementById('productPrice').value * document.getElementById('productCount').value,
+                currency: 'UAH',
+                productName: [document.getElementById('productName').value],
+                productCount: [document.getElementById('productCount').value],
+                productPrice: [document.getElementById('productPrice').value],
+                clientFirstName: document.getElementById('clientName').value.split(' ')[0],
+                clientLastName: document.getElementById('clientName').value.split(' ')[1] || '',
+                clientEmail: document.getElementById('clientEmail').value,
+                clientPhone: document.getElementById('clientPhone').value
+            };
+
+            try {
+                const response = await fetch('http://localhost:5555/initiate-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(paymentData)
+                });
+
+                const result = await response.json();
+
+                if (result.actionUrl && result.paymentData) {
+                    // Динамічно створюємо форму і відправляємо її на WayForPay
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = result.actionUrl;
+                    form.acceptCharset = 'utf-8';
+
+                    for (const key in result.paymentData) {
+                        if (result.paymentData.hasOwnProperty(key)) {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = key;
+                            input.value = result.paymentData[key];
+                            form.appendChild(input);
+                        }
+                    }
+
+                    document.body.appendChild(form);
+                    form.submit(); // Відправляємо форму
+                }
+            } catch (error) {
+                console.error('Помилка під час ініціації платежу:', error);
+            }
+        });
+    </script>
+</body>
+
+</html>

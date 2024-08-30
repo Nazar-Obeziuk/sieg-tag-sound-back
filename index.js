@@ -10,6 +10,7 @@ import PromocodeRouter from "./routers/PromocodeRouter.js";
 import PricesRouter from "./routers/PriceRouter.js";
 import FullPricesRouter from "./routers/FullPricesRouter.js";
 import AuthRouter from "./routers/AuthRouter.js";
+import PaymentRouter from "./routers/PaymentRouter.js";
 
 const app = express();
 const PORT = 5555;
@@ -27,6 +28,7 @@ app.use("/auth", AuthRouter);
 
 // blogs
 app.use("/blogs", BlogRouter);
+app.use("/payments", PaymentRouter);
 
 // portfolio
 app.use("/portfolios", PortfolioRouter);
