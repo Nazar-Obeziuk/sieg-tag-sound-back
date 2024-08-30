@@ -1,13 +1,35 @@
 import express from "express";
 import crypto from "crypto";
-import { sendMessage } from "../utils/telegramService.js";
-import { log } from "console";
 
 const router = express.Router();
 
 const merchantAccount = "185_233_117_23";
 const secretKey = "267aae68e0ac4bd13e7f64a32de2996361da8cb0";
 const merchantDomainName = "185.233.117.23:3000";
+
+// Middleware для обробки нестандартного формату JSON
+router.use(express.json({ type: "application/json" }));
+
+// Middleware для парсингу нестандартного JSON
+router.use((req, res, next) => {
+  // Якщо req.body має ключ-об'єкт і значення-порожній рядок
+  if (
+    req.body &&
+    typeof req.body === "object" &&
+    Object.keys(req.body).length === 1 &&
+    req.body[Object.keys(req.body)[0]] === ""
+  ) {
+    // Парсимо ключ як JSON
+    const rawBody = Object.keys(req.body)[0];
+    try {
+      req.body = JSON.parse(rawBody);
+    } catch (error) {
+      console.error("Error parsing JSON from request body:", error);
+      return res.status(400).send("Invalid JSON format");
+    }
+  }
+  next();
+});
 
 function generateSignature(params, secretKey) {
   const dataString = params.join(";");
@@ -84,10 +106,12 @@ router.post("/service-url", async (req, res) => {
     reasonCode,
   ];
 
-  console.log("body", req.body);
-
   const receivedSignature = req.body.merchantSignature;
   const calculatedSignature = generateSignature(signatureParams, secretKey);
+
+  console.log("receivedSignature", receivedSignature);
+  console.log("calculatedSignature", calculatedSignature);
+  console.log("body", req.body);
 
   if (
     receivedSignature === calculatedSignature &&
@@ -96,8 +120,7 @@ router.post("/service-url", async (req, res) => {
     console.log(`Оплата пройшла успішно! Номер замовлення: ${orderReference}`);
 
     const productName = req.body.productName;
-    const clientName =
-      req.body.clientFirstName + " " + (req.body.clientLastName || "");
+    const clientName = req.body.clientName || "";
 
     await sendMessage(
       `Оплата пройшла успішно! Продукт: ${productName.join(
