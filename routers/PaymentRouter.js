@@ -4,8 +4,8 @@ import { sendMessage } from "../utils/telegramService.js";
 
 const router = express.Router();
 
-const merchantAccount = "test_merch_n1";
-const secretKey = "fIk3409refn54t54t*FNJRET";
+const merchantAccount = "185_233_117_23";
+const secretKey = "267aae68e0ac4bd13e7f64a32de2996361da8cb0";
 const merchantDomainName = "185.233.117.23:3000";
 
 function generateSignature(params, secretKey) {
@@ -60,7 +60,6 @@ router.post("/initiate-payment", (req, res) => {
 });
 
 router.post("/service-url", async (req, res) => {
-  console.log("services entered");
   const {
     merchantAccount,
     orderReference,
@@ -87,28 +86,17 @@ router.post("/service-url", async (req, res) => {
   const receivedSignature = req.body.merchantSignature;
   const calculatedSignature = generateSignature(signatureParams, secretKey);
 
-  console.log("receivedSignature", receivedSignature);
-  console.log("calculatedSignature", calculatedSignature);
-  console.log("transactionStatus", transactionStatus);
-
   if (
     receivedSignature === calculatedSignature &&
     transactionStatus === "Approved"
   ) {
-    console.log("if entered");
-    console.log(req.body);
-    // Успішна оплата
-    const parsedCart = JSON.parse(req.body.cartData);
-    const productName = parsedCart.productName;
-    const clientName = `${parsedCart.firstName} ${parsedCart.lastName || ""}`;
+    console.log(`Оплата пройшла успішно! Номер замовлення: ${orderReference}`);
+
+    const productName = req.body.productName;
+    const clientName =
+      req.body.clientFirstName + " " + (req.body.clientLastName || "");
 
     await sendMessage(
-      `Оплата пройшла успішно! Продукт: ${productName.join(
-        ", "
-      )}. Оплачено клієнтом: ${clientName}.`
-    );
-    // Виведення повідомлення в консоль
-    console.log(
       `Оплата пройшла успішно! Продукт: ${productName.join(
         ", "
       )}. Оплачено клієнтом: ${clientName}.`
