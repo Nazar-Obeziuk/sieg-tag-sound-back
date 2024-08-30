@@ -87,10 +87,16 @@ router.post("/service-url", async (req, res) => {
   const receivedSignature = req.body.merchantSignature;
   const calculatedSignature = generateSignature(signatureParams, secretKey);
 
+  console.log("receivedSignature", receivedSignature);
+  console.log("calculatedSignature", calculatedSignature);
+  console.log("transactionStatus", transactionStatus);
+
   if (
     receivedSignature === calculatedSignature &&
     transactionStatus === "Approved"
   ) {
+    console.log("if entered");
+    console.log(req.body);
     // Успішна оплата
     const parsedCart = JSON.parse(req.body.cartData);
     const productName = parsedCart.productName;
