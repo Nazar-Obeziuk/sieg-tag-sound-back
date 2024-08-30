@@ -42,6 +42,9 @@ app.use("/prices", PricesRouter);
 // full prices
 app.use("/full-prices", FullPricesRouter);
 
+
+app.use('/payment', PaymentRouter);
+
 app.listen(PORT, (error) => {
   if (error) {
     return console.log(error);
