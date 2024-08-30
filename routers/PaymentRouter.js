@@ -60,6 +60,7 @@ router.post("/initiate-payment", (req, res) => {
 });
 
 router.post("/service-url", async (req, res) => {
+  console.log("services entered");
   const {
     merchantAccount,
     orderReference,
@@ -86,17 +87,28 @@ router.post("/service-url", async (req, res) => {
   const receivedSignature = req.body.merchantSignature;
   const calculatedSignature = generateSignature(signatureParams, secretKey);
 
+  console.log("receivedSignature", receivedSignature);
+  console.log("calculatedSignature", calculatedSignature);
+  console.log("transactionStatus", transactionStatus);
+
   if (
     receivedSignature === calculatedSignature &&
     transactionStatus === "Approved"
   ) {
-    console.log(`Оплата пройшла успішно! Номер замовлення: ${orderReference}`);
-
-    const productName = req.body.productName;
-    const clientName =
-      req.body.clientFirstName + " " + (req.body.clientLastName || "");
+    console.log("if entered");
+    console.log(req.body);
+    // Успішна оплата
+    const parsedCart = JSON.parse(req.body.cartData);
+    const productName = parsedCart.productName;
+    const clientName = `${parsedCart.firstName} ${parsedCart.lastName || ""}`;
 
     await sendMessage(
+      `Оплата пройшла успішно! Продукт: ${productName.join(
+        ", "
+      )}. Оплачено клієнтом: ${clientName}.`
+    );
+    // Виведення повідомлення в консоль
+    console.log(
       `Оплата пройшла успішно! Продукт: ${productName.join(
         ", "
       )}. Оплачено клієнтом: ${clientName}.`
