@@ -46,6 +46,7 @@ router.post("/initiate-payment", (req, res) => {
     productName,
     productCount,
     productPrice,
+    cartData,
   } = req.body;
 
   const signatureParams = [
@@ -61,6 +62,8 @@ router.post("/initiate-payment", (req, res) => {
   ];
 
   const merchantSignature = generateSignature(signatureParams, secretKey);
+
+  console.log(cartData);
 
   const paymentData = {
     merchantAccount: merchantAccount,
@@ -120,10 +123,11 @@ router.post("/service-url", async (req, res) => {
   ) {
     console.log(`Оплата пройшла успішно! Номер замовлення: ${orderReference}`);
 
-    // const productName = req.body.productName;
     const clientName = req.body.clientName || "";
 
-    await sendMessage(`Оплата пройшла успішно! Клієнт: ${clientName}.`);
+    await sendMessage(
+      `Оплата пройшла успішно! Клієнт: ${clientName}. Пошта: ${req.body.email}, Телефон: ${req.body.phone}`
+    );
 
     res.json({
       orderReference: orderReference,
