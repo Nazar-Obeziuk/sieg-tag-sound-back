@@ -123,10 +123,11 @@ router.post("/service-url", async (req, res) => {
   ) {
     console.log(`Оплата пройшла успішно! Номер замовлення: ${orderReference}`);
 
-    // const productName = req.body.productName;
     const clientName = req.body.clientName || "";
 
-    await sendMessage(`Оплата пройшла успішно! Клієнт: ${clientName}.`);
+    await sendMessage(
+      `Оплата пройшла успішно! Пошта: ${req.body.email}, Телефон: ${req.body.phone}, Сума: ${req.body.amount}, Клієнт: ${clientName}.`
+    );
 
     res.json({
       orderReference: orderReference,
