@@ -13,14 +13,12 @@ router.use(express.json({ type: "application/json" }));
 
 // Middleware для парсингу нестандартного JSON
 router.use((req, res, next) => {
-  // Якщо req.body має ключ-об'єкт і значення-порожній рядок
   if (
     req.body &&
     typeof req.body === "object" &&
     Object.keys(req.body).length === 1 &&
     req.body[Object.keys(req.body)[0]] === ""
   ) {
-    // Парсимо ключ як JSON
     const rawBody = Object.keys(req.body)[0];
     try {
       req.body = JSON.parse(rawBody);
@@ -46,7 +44,7 @@ router.post("/initiate-payment", (req, res) => {
     productName,
     productCount,
     productPrice,
-    cartData,
+    cartData, // Додаємо cartData тут
   } = req.body;
 
   const signatureParams = [
@@ -63,8 +61,6 @@ router.post("/initiate-payment", (req, res) => {
 
   const merchantSignature = generateSignature(signatureParams, secretKey);
 
-  console.log(cartData);
-
   const paymentData = {
     merchantAccount: merchantAccount,
     merchantAuthType: "SimpleSignature",
@@ -78,6 +74,7 @@ router.post("/initiate-payment", (req, res) => {
     productCount: productCount,
     productPrice: productPrice,
     serviceUrl: "http://185.233.117.23:5555/payment/service-url",
+    cartData: JSON.stringify(cartData), // Передаємо cartData як JSON
   };
 
   res.json({
@@ -96,8 +93,11 @@ router.post("/service-url", async (req, res) => {
     cardPan,
     transactionStatus,
     reasonCode,
+    cartData, // Отримуємо cartData з запиту
     ...otherParams
   } = req.body;
+
+  console.log("service-url cartData", cartData);
 
   const signatureParams = [
     merchantAccount,
@@ -124,9 +124,16 @@ router.post("/service-url", async (req, res) => {
     console.log(`Оплата пройшла успішно! Номер замовлення: ${orderReference}`);
 
     const clientName = req.body.clientName || "";
+    const parsedCartData = JSON.parse(cartData); // Розпарсуємо cartData
 
     await sendMessage(
-      `Оплата пройшла успішно! Клієнт: ${clientName}. Пошта: ${req.body.email}, Телефон: ${req.body.phone}`
+      `Оплата пройшла успішно! Клієнт: ${clientName}. Пошта: ${
+        req.body.email
+      }, Телефон: ${req.body.phone}\nДані замовлення: ${JSON.stringify(
+        parsedCartData,
+        null,
+        2
+      )}`
     );
 
     res.json({
