@@ -32,7 +32,7 @@ router.use((req, res, next) => {
 
 function generateSignature(params, secretKey) {
   console.log("params для підпису:", params);
-  const dataString = params.join(";");
+  let dataString = params.join(";");
   console.log("dataString для підпису:", dataString);
   const signature = crypto
     .createHmac("md5", secretKey)
