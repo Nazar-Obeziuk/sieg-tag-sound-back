@@ -13,14 +13,12 @@ router.use(express.json({ type: "application/json" }));
 
 // Middleware для парсингу нестандартного JSON
 router.use((req, res, next) => {
-  // Якщо req.body має ключ-об'єкт і значення-порожній рядок
   if (
     req.body &&
     typeof req.body === "object" &&
     Object.keys(req.body).length === 1 &&
     req.body[Object.keys(req.body)[0]] === ""
   ) {
-    // Парсимо ключ як JSON
     const rawBody = Object.keys(req.body)[0];
     try {
       req.body = JSON.parse(rawBody);
@@ -33,8 +31,15 @@ router.use((req, res, next) => {
 });
 
 function generateSignature(params, secretKey) {
+  console.log("params для підпису:", params);
   const dataString = params.join(";");
-  return crypto.createHmac("md5", secretKey).update(dataString).digest("hex");
+  console.log("dataString для підпису:", dataString);
+  const signature = crypto
+    .createHmac("md5", secretKey)
+    .update(dataString)
+    .digest("hex");
+  console.log("Generated Signature:", signature);
+  return signature;
 }
 
 router.post("/initiate-payment", (req, res) => {
@@ -49,16 +54,46 @@ router.post("/initiate-payment", (req, res) => {
     cartData,
   } = req.body;
 
+  let parsedCartData;
+  try {
+    parsedCartData = JSON.parse(cartData);
+  } catch (error) {
+    console.error("Error parsing cartData:", error);
+    return res.status(400).send("Invalid cartData format");
+  }
+
+  const { email, phone } = parsedCartData;
+
+  console.log("=== Initiate Payment Request ===");
+  console.log("Received body:", req.body);
+  console.log("Order Reference:", orderReference);
+  console.log("Order Date:", orderDate);
+  console.log("Amount:", amount);
+  console.log("Currency:", currency);
+  console.log("Product Names:", productName);
+  console.log("Product Counts:", productCount);
+  console.log("Product Prices:", productPrice);
+  console.log("Email:", email);
+  console.log("Phone:", phone);
+
+  if (
+    productName.length !== productCount.length ||
+    productCount.length !== productPrice.length
+  ) {
+    console.error("Product data arrays have different lengths!");
+    return res.status(400).send("Invalid product data");
+  }
+
   const signatureParams = [
     merchantAccount,
     merchantDomainName,
     orderReference,
     orderDate,
-    amount,
+    parseFloat(amount), // Конвертуємо суму в число
     currency,
     ...productName,
-    ...productCount,
-    ...productPrice,
+    ...productCount.map(Number), // Конвертуємо кількість у числа
+    ...productPrice.map((price) => parseFloat(price)), // Конвертуємо ціни в числа
   ];
 
   const merchantSignature = generateSignature(signatureParams, secretKey);
@@ -70,15 +105,17 @@ router.post("/initiate-payment", (req, res) => {
     merchantSignature: merchantSignature,
     orderReference: orderReference,
     orderDate: orderDate,
-    amount: amount,
-    email: cartData.email,
-    phone: cartData.phone,
+    amount: parseFloat(amount), // Конвертуємо суму в число
+    email: email,
+    phone: phone,
     currency: currency,
     productName: productName,
-    productCount: productCount,
-    productPrice: productPrice,
+    productCount: productCount.map(Number), // Конвертуємо кількість у числа
+    productPrice: productPrice.map((price) => parseFloat(price)), // Конвертуємо ціни в числа
     serviceUrl: "http://185.233.117.23:5555/payment/service-url",
   };
+
+  console.log("Generated Payment Data:", paymentData);
 
   res.json({
     actionUrl: "https://secure.wayforpay.com/pay",
@@ -99,10 +136,15 @@ router.post("/service-url", async (req, res) => {
     ...otherParams
   } = req.body;
 
+  console.log("=== Service URL Request ===");
+  console.log("Received body:", req.body);
+  console.log("Order Reference:", orderReference);
+  console.log("Transaction Status:", transactionStatus);
+
   const signatureParams = [
     merchantAccount,
     orderReference,
-    amount,
+    parseFloat(amount), // Конвертуємо суму в число
     currency,
     authCode,
     cardPan,
@@ -113,9 +155,8 @@ router.post("/service-url", async (req, res) => {
   const receivedSignature = req.body.merchantSignature;
   const calculatedSignature = generateSignature(signatureParams, secretKey);
 
-  console.log("receivedSignature", receivedSignature);
-  console.log("calculatedSignature", calculatedSignature);
-  console.log("body", req.body);
+  console.log("Received Signature:", receivedSignature);
+  console.log("Calculated Signature:", calculatedSignature);
 
   if (
     receivedSignature === calculatedSignature &&
@@ -139,6 +180,7 @@ router.post("/service-url", async (req, res) => {
       ),
     });
   } else {
+    console.error("Invalid signature or payment failed");
     res.status(400).send("Invalid signature or payment failed");
   }
 });
