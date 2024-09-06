@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 mongoose
   .connect(
-    "mongodb+srv://admin-sieg-tag-sound:ZICuwh4mpXxZS9U4@cluster0.ro0otcp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+    "mongodb+srv://boyskinny143:aad0trJHtcvOMwDs@cluster0.j2i5s.mongodb.net/"
   )
   .then(() => console.log("Database OK"))
   .catch((error) => console.log("Database ERROR", error));
