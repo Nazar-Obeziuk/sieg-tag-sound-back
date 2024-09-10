@@ -23,7 +23,7 @@ app.use(cors({
 }));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get("/", (_req, res) => {
+app.get("/api", (_req, res) => {
   res.send("Welcome to API");
 });
 
