@@ -16,7 +16,11 @@ const app = express();
 const PORT = 5555;
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: "https://siegtagsound.com", // або масив дозволених доменів
+  methods: "GET,POST,PUT,DELETE,OPTIONS",
+  credentials: true
+}));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/", (_req, res) => {
