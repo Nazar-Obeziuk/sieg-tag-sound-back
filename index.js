@@ -28,25 +28,25 @@ app.get("/api", (_req, res) => {
 });
 
 // auth
-app.use("/auth", AuthRouter);
+app.use("/api/auth", AuthRouter);
 
 // blogs
-app.use("/blogs", BlogRouter);
-app.use("/payments", PaymentRouter);
+app.use("/api/blogs", BlogRouter);
+app.use("/api/payments", PaymentRouter);
 
 // portfolio
-app.use("/portfolios", PortfolioRouter);
+app.use("/api/portfolios", PortfolioRouter);
 
 // promocode
-app.use("/promocodes", PromocodeRouter);
+app.use("/api/promocodes", PromocodeRouter);
 
 // prices
-app.use("/prices", PricesRouter);
+app.use("/api/prices", PricesRouter);
 
 // full prices
-app.use("/full-prices", FullPricesRouter);
+app.use("/api/full-prices", FullPricesRouter);
 
-app.use("/payment", PaymentRouter);
+app.use("/api/payment", PaymentRouter);
 
 app.listen(PORT, (error) => {
   if (error) {
