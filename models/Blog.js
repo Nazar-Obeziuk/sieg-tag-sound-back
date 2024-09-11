@@ -18,6 +18,10 @@ const BlogSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    subtitle: {
+      type: String,
+      required: true,
+    },
     text: {
       type: String,
       required: true,

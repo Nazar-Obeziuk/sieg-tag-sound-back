@@ -130,7 +130,7 @@ export const getOneLang = async (req, res) => {
 
 export const create = async (req, res) => {
   try {
-    const { descriptions, blog_language, title, text } = req.body;
+    const { descriptions, blog_language, title, subtitle, text } = req.body;
     const imageUrl = await uploadImageToFirebase(req.files.image_url[0]);
     let parseDescriptions = await JSON.parse(descriptions);
 
@@ -139,6 +139,7 @@ export const create = async (req, res) => {
       descriptions: parseDescriptions,
       blog_language,
       title,
+      subtitle,
       text,
       langID: uuidv4(),
     });
@@ -160,7 +161,7 @@ export const createLang = async (req, res) => {
   try {
     const blogLang = req.params.langID;
 
-    const { descriptions, blog_language, title, text } = req.body;
+    const { descriptions, blog_language, title, subtitle, text } = req.body;
     const imageUrl = await uploadImageToFirebase(req.files.image_url[0]);
     let parseDescriptions = await JSON.parse(descriptions);
 
@@ -169,6 +170,7 @@ export const createLang = async (req, res) => {
       descriptions: parseDescriptions,
       blog_language,
       title,
+      subtitle,
       text,
       langID: blogLang,
     });
@@ -189,7 +191,7 @@ export const createLang = async (req, res) => {
 export const update = async (req, res) => {
   try {
     const blogId = req.params.id;
-    const { descriptions, blog_language, title, text } = req.body;
+    const { descriptions, blog_language, title, subtitle, text } = req.body;
     let parseDescriptions = await JSON.parse(descriptions);
 
     if (req.files && req.files.image_url) {
@@ -206,6 +208,7 @@ export const update = async (req, res) => {
           descriptions: parseDescriptions,
           blog_language,
           title,
+          subtitle,
           text,
         }
       );
@@ -218,6 +221,7 @@ export const update = async (req, res) => {
           descriptions: parseDescriptions,
           blog_language,
           title,
+          subtitle,
           text,
         }
       );

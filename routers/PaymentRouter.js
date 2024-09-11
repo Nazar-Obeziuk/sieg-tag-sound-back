@@ -8,10 +8,8 @@ const merchantAccount = "185_233_117_23";
 const secretKey = "267aae68e0ac4bd13e7f64a32de2996361da8cb0";
 const merchantDomainName = "185.233.117.23:3000";
 
-// Middleware для обробки нестандартного формату JSON
 router.use(express.json({ type: "application/json" }));
 
-// Middleware для парсингу нестандартного JSON
 router.use((req, res, next) => {
   if (
     req.body &&

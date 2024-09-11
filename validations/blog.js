@@ -5,5 +5,8 @@ export const blogCreateValidation = [
   body("descriptions", "Вкажіть опис блогу").optional().isArray(),
   body("blog_language", "Вкажіть мову блогу").isLength({ min: 2 }).isString(),
   body("title", "Введіть заголовок блогу").isLength({ min: 3 }).isString(),
+  body("subtitle", "Введіть підзаголовок блогу")
+    .isLength({ min: 3 })
+    .isString(),
   body("text", "Введіть текст блогу").isLength({ min: 5 }).isString(),
 ];
