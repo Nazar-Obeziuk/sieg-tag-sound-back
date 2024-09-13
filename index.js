@@ -13,14 +13,16 @@ import AuthRouter from "./routers/AuthRouter.js";
 import PaymentRouter from "./routers/PaymentRouter.js";
 
 const app = express();
-const PORT = 5555;
+const PORT = 4550;
 
 app.use(express.json());
-app.use(cors({
-  origin: "https://siegtagsound.com", // або масив дозволених доменів
-  methods: "GET,POST,PUT,DELETE,OPTIONS",
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: ["http://localhost:3004", "https://siegtagsound.com"], // Масив дозволених доменів
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    credentials: true,
+  })
+);
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/api", (_req, res) => {
