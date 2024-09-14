@@ -18,7 +18,7 @@ const PORT = 4550;
 app.use(express.json());
 app.use(
   cors({
-    origin: ["http://localhost:3004", "https://siegtagsound.com"], // Масив дозволених доменів
+    origin: "https://siegtagsound.com/api",
     methods: "GET,POST,PUT,DELETE,OPTIONS",
     credentials: true,
   })
