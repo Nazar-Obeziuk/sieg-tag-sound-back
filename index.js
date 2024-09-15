@@ -16,13 +16,7 @@ const app = express();
 const PORT = 4550;
 
 app.use(express.json());
-app.use(
-  cors({
-    origin: "https://siegtagsound.com/api",
-    methods: "GET,POST,PUT,DELETE,OPTIONS",
-    credentials: true,
-  })
-);
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get("/api", (_req, res) => {
